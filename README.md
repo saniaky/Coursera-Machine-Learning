@@ -27,10 +27,10 @@ Taught by:  Andrew Ng, CEO/Founder Landing AI; Co-founder, Coursera; Adjunct Pro
 - Support Vector machine SVM (aka Large Margin Classifier) - used for classification problems.
 - SVM optimization for linear regression. Hard to use for logistic reg.
 - SVM Parameters:
-  - Choice of parameter C (1/lambda)  
+  - Choice of parameter C (1/lambda) - controls penalty for misclassified training examples.
     - Large C - Lower bias, high variance.  
     - Small C - Higher bias, low variance.
-  - Choice of parameter sigma^2  
+  - Choice of parameter sigma^2 - how fast similarity metric decreases.
     - Large sigma - features vary more smoothly. Higher bias, lower variance.  
     - Small sigma - features vary less smoothly. Lower bias, higher variance.  
   - Choice of kernel (similarity). No kernel = linear kernel.  
@@ -51,6 +51,26 @@ Taught by:  Andrew Ng, CEO/Founder Landing AI; Co-founder, Coursera; Adjunct Pro
   - NOTES
     - LR ~= SVM without kernel.
     - Neural Networks works well, but maybe slower to train.
+
+## Week 8
+- Unsupervised Clusterization Algorithm: K-Means
+  - K-Means: Init; Repeat: Cluster assignment, Move Centroids
+  - How to pick initial params - choose random.
+  - Number of random initializatino - 50-1000
+  - How to choose K? "Elbow" method and manually.
+- Dimensionality reduction: PCA
+  - Data preprocessing: feature scaling / mean normalization
+  - Compute covariance matrix Sigma (svd - singular value decomposition, eig)
+    svd = eig if applied to covariance matrix
+  - Compute "eighvectors"
+  - Reconstruction
+  - How to choose number of principal components? 85-99% variance is retained.
+  - In reality data is reduced in 5-10 times
+  - Do not use as overfitting prevention
+  - Use for: compress data, speedup learning, visualize.
+  
+
+
 
 
 ## Type of problems:

@@ -62,24 +62,95 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% Students often ask why they can't use matrix multiplication to
+% compute the cost value J in the Neural Network cost function. This post explains why.
+% Short answer: You can use matrix multiplication, but it is tricky.
+% See https://www.coursera.org/learn/machine-learning/discussions/all/threads/AzIrrO7wEeaV3gonaJwAFA
 
-% Theta1 has size 25 x 401
-% Theta2 has size 10 x 26
 
-% Step 1. Feedforward the neural network and return the cost in the variable J
+% Perform feedforward propagation:
+a1 = [ones(m, 1) X];
+a2 = sigmoid(a1 * Theta1'); a2 = [ones(m, 1) a2];
+a3 = sigmoid(a2 * Theta2');
+h = a3;
+
+% m - 5000
+% num_labels - 10
+% h - 5000 x 10
+% y - 5000 x 1  ->  5000 x 10
+
+
+% Convert vector y as vectors containing 0 or 1
+% so it has ones in the corresponding column,
+% e.g. [ 0 0 0 0 0 0 0 0 0 1 ]
+% for label of digit zero and the vertical size
+% of y is m, i.e. number of examples.
+yt = zeros(m, num_labels);
 for i = 1:m
-  for k = 1:K
-  % Perform forward propagation and backpropagation using example (x(i),y(i))
-  a1 = [ones(m, 1) X];
-  a2 = sigmoid(a1 * Theta1'); a2 = [ones(m, 1) a2];
-  a3 = sigmoid(a2 * Theta2');
-  h(i) = a3;
+  yt(i, y(i)) = 1;
 end
+%yt(1999:2002, :) transition from 3 to 4
 
+
+% Cost Function, non-regularized:
+total = 0;
+for i = 1:m
+  for k = 1:num_labels
+    total = total - yt(i, k) .* log(h(i, k)) - (1 - yt(i, k)) .* log(1 - h(i, k));
+  end
+end
+J = 1/m * total;
+fprintf('--> Unregularized cost: %f\n', J);
 % cost is about 0.287629
 
-% Theta1_grad =
-% Theta2_grad =
+
+% Regularize cost function
+% Theta1 - 25 x 401
+total1 = 0;
+for i = 1:size(Theta1, 1)
+  for k = 2:size(Theta1, 2)
+    total1 = total1 + Theta1(i, k) ^ 2;
+  end
+end
+% Theta2 - 10 x 26
+total2 = 0;
+for i = 1:size(Theta2, 1)
+  for k = 2:size(Theta2, 2)
+    total2 = total2 + Theta2(i, k) ^ 2;
+  end
+end
+total1
+total2
+J = J + lambda / (2 * m) * (total1 + total2);
+fprintf('--> Regularized cost: %f\n', J);
+% Expected cost is about 0.383770
+
+
+% Backpropagation algorithm
+fprintf('--> Running backpropagation algorigthm\n');
+delta2 = 0;
+delta1 = 0;
+for i = 1:m
+  % Perform "forward" pass
+  a_1 = [1  X(i, :)];
+
+  z_2 = a_1 * Theta1';
+  a_2 = sigmoid(z_2); a_2 = [1 a_2];
+
+  z_3 = a_2 * Theta2';
+  a_3 = sigmoid(z_3);
+
+  % Compute error terms (gradients)
+  d3 = (a_3 - (y(k) == k)); size(d3)
+  d2 = Theta2' * d3' .* sigmoidGradient(z_2); size(d2)
+
+  % Accumulate sum
+  delta2 = delta2 + d3 * a_2';
+  delta1 = delta1 + d2 * a_1';
+
+end
+Theta2_grad = Theta2_grad / m;
+Theta1_grad = Theta1_grad / m;
 
 
 % -------------------------------------------------------------
