@@ -13,6 +13,14 @@ Taught by:  Andrew Ng, CEO/Founder Landing AI; Co-founder, Coursera; Adjunct Pro
 
 # Notes
 
+## Week 1
+
+## Week 2
+
+## Week 3
+
+## Week 4
+
 ## Week 5
 
 ## Week 6 - Evaluating a learning algorithm
@@ -67,18 +75,38 @@ Taught by:  Andrew Ng, CEO/Founder Landing AI; Co-founder, Coursera; Adjunct Pro
   - How to choose number of principal components? 85-99% variance is retained.
   - In reality data is reduced in 5-10 times
   - Do not use as overfitting prevention
-  - Use for: compress data, speedup learning, visualize.
+  - Good for: data compression, learning speedup, step for visualization.
+
+## Week 9
+- Anomaly Detection Algorithm
+  - Density Estimation
+  - Multivariate Gaussian Distribution
+- Collaborative Filtering for Rating Prediction / Recommendation System:
+  - Algorithm:
+    1. Initialize with random values
+    2. Minimize using gradient descent
+    3. Predict rating
+  - Low Rank Matrix Factorization (Low-rank approximation)
+    - X * Theta'
+
+
+# Overview
+
+## Type of machine learning problems:
+- Classification
+- Prediction
+- Clusterization
+- Anomaly Detection
+  Examples:
+  - Failing Servers on Network
+  - Defective product
+- Recommendation System
+  Examples:
+  - Rating prediction
+  - Find related products
   
 
 
-
-
-## Type of problems:
-- Supervised
-  - Classification
-  - Prediction
-- Unsupervised
-  - Clusterization
 
 ## Model Selection (h)
 To pick model (d - degree of polynomial):

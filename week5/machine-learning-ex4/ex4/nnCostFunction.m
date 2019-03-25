@@ -144,9 +144,9 @@ for i = 1:m
   d3 = (a_3 - (y(k) == k)); size(d3)
   d2 = Theta2' * d3' .* sigmoidGradient(z_2); size(d2)
 
-  % Accumulate sum
+  % Accumulate gradient
   delta2 = delta2 + d3 * a_2';
-  delta1 = delta1 + d2 * a_1';
+  delta1 = delta1 + d2(2:size(d2)) * a_1';
 
 end
 Theta2_grad = Theta2_grad / m;
