@@ -63,107 +63,82 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
-
-
-% Perform feedforward propagation:
+% ================= Perform feedforward propagation: =================
 a1 = [ones(m, 1) X];
 a2 = sigmoid(a1 * Theta1'); a2 = [ones(m, 1) a2];
 a3 = sigmoid(a2 * Theta2');
 h = a3;
 
-% m - 5000
-% num_labels - 10
-% h - 5000 x 10
-% y - 5000 x 1  ->  5000 x 10
+% yt = zeros(m, num_labels);
+% for i = 1:m
+%   yt(i, y(i)) = 1;
+% end
+yt = (1:num_labels) == y; % m x num_labels == 5000 x 10
+%isequal(yt, yt2)
 
+% ================= Cost Function, non-regularized: =================
 
-% Convert vector y as vectors containing 0 or 1
-% so it has ones in the corresponding column,
-% e.g. [ 0 0 0 0 0 0 0 0 0 1 ]
-% for label of digit zero and the vertical size
-% of y is m, i.e. number of examples.
-yt = zeros(m, num_labels);
-for i = 1:m
-  yt(i, y(i)) = 1;
-end
-%yt(1999:2002, :) transition from 3 to 4
+% Loop solution:
+% total = 0;
+% for i = 1:m
+%   for k = 1:num_labels
+%     total = total - yt(i, k) .* log(h(i, k)) - (1 - yt(i, k)) .* log(1 - h(i, k));
+%   end
+% end
+% J = 1/m * total;
 
+% Vectorized solution
+J = (1/m) * sum(sum((-yt .* log(h)) - ((1 - yt) .* log(1 - h))));  % scalar
 
-% Cost Function, non-regularized:
-total = 0;
-for i = 1:m
-  for k = 1:num_labels
-    total = total - yt(i, k) .* log(h(i, k)) - (1 - yt(i, k)) .* log(1 - h(i, k));
-  end
-end
-J = 1/m * total;
-%fprintf('--> Unregularized cost: %f\n', J);
-% cost is about 0.287629
-
+% ================= Regularize cost function: =================
 
 % Regularize cost function
-% Theta1 - 25 x 401
-total1 = 0;
-for i = 1:size(Theta1, 1)
-  for k = 2:size(Theta1, 2)
-    total1 = total1 + Theta1(i, k) ^ 2;
-  end
-end
-% Theta2 - 10 x 26
-total2 = 0;
-for i = 1:size(Theta2, 1)
-  for k = 2:size(Theta2, 2)
-    total2 = total2 + Theta2(i, k) ^ 2;
-  end
-end
-J = J + lambda / (2 * m) * (total1 + total2);
+% total1 = 0;
+% for i = 1:size(Theta1, 1)
+%   for k = 2:size(Theta1, 2)
+%     total1 = total1 + Theta1(i, k) ^ 2;
+%   end
+% end
+% % Theta2 - 10 x 26
+% total2 = 0;
+% for i = 1:size(Theta2, 1)
+%   for k = 2:size(Theta2, 2)
+%     total2 = total2 + Theta2(i, k) ^ 2;
+%   end
+% end
+% J = J + lambda / (2 * m) * (total1 + total2);
+
+% Vectorized solution:
+total1 = sum(sum(Theta1(:, 2:end) .^ 2));
+total2 = sum(sum(Theta2(:, 2:end) .^ 2));
+J = J + lambda / (2 * m) * (total1 + total2); % scalar
+
 %fprintf('--> Regularized cost: %f\n', J);
 % Expected cost is about 0.383770
 
-
-% Backpropagation algorithm
-%fprintf('--> Running backpropagation algorigthm\n');
-fprintf('yt: %fx%f\n', size(yt,1), size(yt,2)); %
-yt(1, :)
+% ================= Backpropagation algorithm =================
 Delta2 = zeros(size(Theta2));
 Delta1 = zeros(size(Theta1));
 for i = 1:m
   % Perform "forward" pass
   a1 = [1; X(i, :)'];
-
   z2 = Theta1 * a1;
   a2 = [1; sigmoid(z2)];
-
   z3 = Theta2 * a2;
   a3 = sigmoid(z3);
-
-  % fprintf('a1: %fx%f\n', size(a1,1), size(a1,2)); % a1: 5000x401
-  % fprintf('a2: %fx%f\n', size(a2,1), size(a2,2)); % a2: 5000x26
-  % fprintf('a3: %fx%f\n', size(a3,1), size(a3,2)); % a3: 5000x10
-  % fprintf('z2: %fx%f\n', size(z2,1), size(z2,2)); % z2: 5000x25
-  % fprintf('Theta2: %fx%f\n', size(Theta2,1), size(Theta2,2)); % Theta2, Delta2 and Theta2grad: 10x26
-  % fprintf('Theta1: %fx%f\n', size(Theta1,1), size(Theta1,2)); % Theta1, Delta1 and Theta1grad: 25x401
 
   % Compute error terms (gradients)
   yVector = (1:num_labels)' == y(i);
   d3 = a3 - yVector;
-  % fprintf('d3: %fx%f\n', size(d3,1), size(d3,2)); % d3: 5000x10
-
-  % d2 equals the product of δ3 and Θ2 (ignoring the Θ2 bias units),
-  % then multiplied element-wise by the g′() of z2 (computed back in Step 2).
   d2 = Theta2' * d3;
-  d2 = d2(2:end) .* sigmoidGradient(z2); % hidden_layer_size x 1 == 25 x 1 %Removing delta2 for bias node
-  % fprintf('d2: %fx%f\n', size(d2,1), size(d2,2)); % d2: 5000x25
+  d2 = d2(2:end) .* sigmoidGradient(z2);
 
   % Accumulate sum
   Delta2 = Delta2 + d3 * a2'; % 10 x 26
   Delta1 = Delta1 + d2 * a1'; % 25 x 401
-
-  % fprintf('Delta2: %fx%f\n', size(Delta2,1), size(Delta2,2)); % 10 x 26
-  % fprintf('Delta1: %fx%f\n', size(Delta1,1), size(Delta1,2)); % 25 x 401
 end
 
-
+% Add regularization
 Delta2(:,2:end) = Delta2(:,2:end) + lambda * Theta2(:,2:end);
 Delta1(:,2:end) = Delta1(:,2:end) + lambda * Theta1(:,2:end);
 
