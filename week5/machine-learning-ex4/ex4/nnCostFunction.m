@@ -62,10 +62,7 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-% Students often ask why they can't use matrix multiplication to
-% compute the cost value J in the Neural Network cost function. This post explains why.
-% Short answer: You can use matrix multiplication, but it is tricky.
-% See https://www.coursera.org/learn/machine-learning/discussions/all/threads/AzIrrO7wEeaV3gonaJwAFA
+
 
 
 % Perform feedforward propagation:
@@ -100,7 +97,7 @@ for i = 1:m
   end
 end
 J = 1/m * total;
-fprintf('--> Unregularized cost: %f\n', J);
+%fprintf('--> Unregularized cost: %f\n', J);
 % cost is about 0.287629
 
 
@@ -119,39 +116,59 @@ for i = 1:size(Theta2, 1)
     total2 = total2 + Theta2(i, k) ^ 2;
   end
 end
-total1
-total2
 J = J + lambda / (2 * m) * (total1 + total2);
-fprintf('--> Regularized cost: %f\n', J);
+%fprintf('--> Regularized cost: %f\n', J);
 % Expected cost is about 0.383770
 
 
 % Backpropagation algorithm
-fprintf('--> Running backpropagation algorigthm\n');
-delta2 = 0;
-delta1 = 0;
+%fprintf('--> Running backpropagation algorigthm\n');
+fprintf('yt: %fx%f\n', size(yt,1), size(yt,2)); %
+yt(1, :)
+Delta2 = zeros(size(Theta2));
+Delta1 = zeros(size(Theta1));
 for i = 1:m
   % Perform "forward" pass
-  a_1 = [1  X(i, :)];
+  a1 = [1; X(i, :)'];
 
-  z_2 = a_1 * Theta1';
-  a_2 = sigmoid(z_2); a_2 = [1 a_2];
+  z2 = Theta1 * a1;
+  a2 = [1; sigmoid(z2)];
 
-  z_3 = a_2 * Theta2';
-  a_3 = sigmoid(z_3);
+  z3 = Theta2 * a2;
+  a3 = sigmoid(z3);
+
+  % fprintf('a1: %fx%f\n', size(a1,1), size(a1,2)); % a1: 5000x401
+  % fprintf('a2: %fx%f\n', size(a2,1), size(a2,2)); % a2: 5000x26
+  % fprintf('a3: %fx%f\n', size(a3,1), size(a3,2)); % a3: 5000x10
+  % fprintf('z2: %fx%f\n', size(z2,1), size(z2,2)); % z2: 5000x25
+  % fprintf('Theta2: %fx%f\n', size(Theta2,1), size(Theta2,2)); % Theta2, Delta2 and Theta2grad: 10x26
+  % fprintf('Theta1: %fx%f\n', size(Theta1,1), size(Theta1,2)); % Theta1, Delta1 and Theta1grad: 25x401
 
   % Compute error terms (gradients)
-  d3 = (a_3 - (y(k) == k)); size(d3)
-  d2 = Theta2' * d3' .* sigmoidGradient(z_2); size(d2)
+  yVector = (1:num_labels)' == y(i);
+  d3 = a3 - yVector;
+  % fprintf('d3: %fx%f\n', size(d3,1), size(d3,2)); % d3: 5000x10
+
+  % d2 equals the product of δ3 and Θ2 (ignoring the Θ2 bias units),
+  % then multiplied element-wise by the g′() of z2 (computed back in Step 2).
+  d2 = Theta2' * d3;
+  d2 = d2(2:end) .* sigmoidGradient(z2); % hidden_layer_size x 1 == 25 x 1 %Removing delta2 for bias node
+  % fprintf('d2: %fx%f\n', size(d2,1), size(d2,2)); % d2: 5000x25
 
   % Accumulate sum
-  delta2 = delta2 + d3 * a_2';
-  delta1 = delta1 + d2 * a_1';
+  Delta2 = Delta2 + d3 * a2'; % 10 x 26
+  Delta1 = Delta1 + d2 * a1'; % 25 x 401
 
+  % fprintf('Delta2: %fx%f\n', size(Delta2,1), size(Delta2,2)); % 10 x 26
+  % fprintf('Delta1: %fx%f\n', size(Delta1,1), size(Delta1,2)); % 25 x 401
 end
-Theta2_grad = Theta2_grad / m;
-Theta1_grad = Theta1_grad / m;
 
+
+Delta2(:,2:end) = Delta2(:,2:end) + lambda * Theta2(:,2:end);
+Delta1(:,2:end) = Delta1(:,2:end) + lambda * Theta1(:,2:end);
+
+Theta2_grad = Delta2 / m;
+Theta1_grad = Delta1 / m;
 
 % -------------------------------------------------------------
 
@@ -159,6 +176,5 @@ Theta1_grad = Theta1_grad / m;
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
